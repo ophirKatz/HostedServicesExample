@@ -35,20 +35,20 @@ public class TestRunningBackgroundService : BackgroundService
         {
             await RunTestAsync(stoppingToken);
 
-            await Task.Delay(_workerOptions.Value.Delay);
+            await Task.Delay(_workerOptions.Value.Delay, stoppingToken);
         }
     }
 
     private async Task RunTestAsync(CancellationToken cancellationToken)
     {
+        _logger.LogInformation("Trying to run a test...");
+        if (!_testRunQueue.TryGetNextTest(out var testRunId))
+        {
+            return;
+        }
+
         using (var scope = _serviceScopeFactory.CreateScope())
         {
-            _logger.LogInformation("Trying to run a test...");
-            if (!_testRunQueue.TryGetNextTest(out var testRunId))
-            {
-                return;
-            }
-
             var testRunner = scope.ServiceProvider.GetRequiredService<TestRunner>();
             await testRunner.RunTestAsync(testRunId, cancellationToken);
         }

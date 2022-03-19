@@ -37,11 +37,6 @@ public class TestRunQueue : ITestRunQueue
         await _queue.Writer.WriteAsync(testRunId);
     }
 
-    public async ValueTask<Guid> GetTestToRunAsync(CancellationToken cancellationToken)
-    {
-        return await _queue.Reader.ReadAsync(cancellationToken);
-    }
-
     public bool TryGetNextTest(out Guid testRunId)
     {
         return _queue.Reader.TryRead(out testRunId);
